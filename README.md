@@ -204,74 +204,29 @@ The server starts at: **`http://localhost:5000`**
 
 
 ### 🖥️ Interviewer Dashboard
-![alt text](image.png)
+![Interviewer Dashboard](images/interviewer-dashboard.png)
 
 
 ### 📊 Interviewer Analysis Dashboard
+![Analysis Dashboard](images/analysis-dashboard.png)
 
-<!-- SCREENSHOT: INTERVIEWER ANALYSIS DASHBOARD -->
-<!-- Paste your screenshot here -->
-
-```
-[ INTERVIEWER ANALYSIS DASHBOARD SCREENSHOT ]
-```
-
----
 
 ### 📋 Candidate Interview Result Page
+![Candidate Dashboard](images/candidate-dashboard.png)
 
-<!-- SCREENSHOT: CANDIDATE INTERVIEW RESULT PAGE -->
-<!-- Paste your screenshot here -->
 
-```
-[ CANDIDATE INTERVIEW RESULT PAGE SCREENSHOT ]
-```
 
----
 
 ### 📥 Download Result Page
+![Result Page](images/result-page.png)
 
-<!-- SCREENSHOT: DOWNLOAD RESULT PAGE -->
-<!-- Paste your screenshot here -->
 
-```
-[ DOWNLOAD RESULT PAGE SCREENSHOT ]
-```
-
----
-
-### 🧑‍💼 Candidate Dashboard
-
-<!-- SCREENSHOT: CANDIDATE DASHBOARD -->
-<!-- Paste your screenshot here -->
-
-```
-[ CANDIDATE DASHBOARD SCREENSHOT ]
-```
-
----
 
 ### 🎥 Candidate Online Interview — Video Call Interface
-
-<!-- SCREENSHOT: CANDIDATE ONLINE INTERVIEW VIDEOCALL INTERFACE -->
-<!-- Paste your screenshot here -->
-
-```
-[ CANDIDATE ONLINE INTERVIEW VIDEOCALL INTERFACE SCREENSHOT ]
-```
-
----
+![Candidate Dashboard](images/candidate-dashboard2.png)
 
 ### 🏁 Candidate Interview End Page
-
-<!-- SCREENSHOT: CANDIDATE INTERVIEW END PAGE -->
-<!-- Paste your screenshot here -->
-
-```
-[ CANDIDATE INTERVIEW END PAGE SCREENSHOT ]
-```
-
----
+![Video Call](images/video-call-end.png)
 
 ## 🔮 Future Improvements
 
@@ -299,8 +254,8 @@ The server starts at: **`http://localhost:5000`**
 **Mohammed Farman**
 *B.C.A. Computer Science & Engineering *
 
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/YOUR_GITHUB_USERNAME)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/YOUR_LINKEDIN)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/md-farman)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/Mohammad Farman)
 [![Email](https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:YOUR_EMAIL@gmail.com)
 
 </div>
@@ -311,7 +266,7 @@ The server starts at: **`http://localhost:5000`**
 
 **⭐ If you found this project useful, please star the repository!**
 
-<img src="https://img.shields.io/github/stars/YOUR_USERNAME/AI-Powered_Online_interview_Analyzer?style=social" alt="Stars"/>
+<img src="https://img.shields.io/github/stars/md-farman/AI-Powered_Online_interview_Analyzer?style=social" alt="Stars"/>
 
 *Made with 🔮 AI, ☕ Coffee, and late-night debugging sessions.*
 
