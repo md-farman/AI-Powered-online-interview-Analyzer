@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuralRead — AI Interview Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <style>
+        :root {
+            --bg-primary: #06060f;
+            --bg-secondary: #0d0d1a;
+            --bg-card: rgba(255,255,255,0.03);
+            --bg-card-hover: rgba(255,255,255,0.06);
+            --text-primary: #f0f0ff;
+            --text-dim: #6b7280;
+            --text-muted: #374151;
+            --neon-purple: #a855f7;
+            --neon-teal: #2dd4bf;
+            --neon-cyan: #22d3ee;
+            --neon-green: #10b981;
+            --danger: #f43f5e;
+            --warning: #f59e0b;
+            --glass-bg: rgba(255,255,255,0.04);
+            --glass-border: rgba(255,255,255,0.08);
+            --glass-border-bright: rgba(255,255,255,0.15);
+            --glow-purple: rgba(168,85,247,0.4);
+            --glow-teal: rgba(45,212,191,0.35);
+            --glow-cyan: rgba(34,211,238,0.35);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        .panel-title, .metric-label, .rc-label, .timeline-label, h1, h2, h3, h4, h5, h6 {
+            font-family: 'Outfit', sans-serif !important;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── CUSTOM CURSOR ── */
+        .cursor {
+            width: 12px; height: 12px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+            box-shadow: 0 0 15px var(--neon-cyan), 0 0 30px rgba(34,211,238,0.3);
+        }
+        .cursor-ring {
+            width: 36px; height: 36px;
+            border: 1px solid rgba(34,211,238,0.4);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: transform 0.15s ease, width 0.2s, height 0.2s;
+        }
+        body:hover .cursor { opacity: 1; }
+
+        /* ── ANIMATED BG ── */
+        .bg-orbs {
+            position: fixed; inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.18;
+            animation: orbFloat 12s ease-in-out infinite;
+        }
+        .orb-1 { width: 500px; height: 500px; background: var(--neon-purple); top: -150px; left: -100px; animation-delay: 0s; }
+        .orb-2 { width: 400px; height: 400px; background: var(--neon-teal); bottom: -100px; right: -100px; animation-delay: -4s; }
+        .orb-3 { width: 300px; height: 300px; background: var(--neon-cyan); top: 40%; left: 50%; animation-delay: -8s; }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -20px) scale(1.05); }
+            66% { transform: translate(-20px, 30px) scale(0.95); }
+        }
+
+        /* ── GRID OVERLAY ── */
+        .bg-grid {
+            position: fixed; inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── SCREENS ── */
+        .screen { display: none; position: relative; z-index: 1; min-height: 100vh; }
+        .screen.active { display: flex; }
+
+        /* ════════════════════════════════
+           START SCREEN
+        ════════════════════════════════ */
+        #start-screen {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .start-inner {
+            max-width: 680px;
+            width: 100%;
+            animation: riseIn 0.8s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+
+        @keyframes riseIn {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 16px;
+            background: rgba(168,85,247,0.12);
+            border: 1px solid rgba(168,85,247,0.3);
+            border-radius: 100px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--neon-purple);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+        .badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: var(--neon-purple);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--neon-purple);
+            animation: blink 2s infinite;
+        }
+
+        .start-title {
+            font-family: 'DM Sans', sans-serif;
+            font-style: italic;
+            text-transform: uppercase;
+            font-size: clamp(2.8rem, 7vw, 5rem);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #f0f0ff 0%, var(--neon-cyan) 50%, var(--neon-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .start-desc {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            line-height: 1.7;
+            margin-bottom: 3rem;
+            max-width: 520px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Feature pills row */
+        .feature-pills {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 3rem;
+        }
+        .pill {
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 100px;
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            backdrop-filter: blur(10px);
+        }
+        .pill-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .pill-dot.teal { background: var(--neon-teal); box-shadow: 0 0 6px var(--neon-teal); }
+        .pill-dot.purple { background: var(--neon-purple); box-shadow: 0 0 6px var(--neon-purple); }
+        .pill-dot.cyan { background: var(--neon-cyan); box-shadow: 0 0 6px var(--neon-cyan); }
+
+        /* Start button */
+        .start-btn {
+            position: relative;
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 18px 52px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan));
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.3s;
+            box-shadow:
+                0 0 20px rgba(168,85,247,0.4),
+                0 0 60px rgba(34,211,238,0.2),
+                0 4px 30px rgba(0,0,0,0.4);
+        }
+        .start-btn::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .start-btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 0 40px rgba(168,85,247,0.6), 0 0 80px rgba(34,211,238,0.3), 0 8px 40px rgba(0,0,0,0.5); }
+        .start-btn:hover::before { opacity: 1; }
+        .start-btn:active { transform: translateY(0) scale(0.99); }
+
+        /* Ripple */
+        .ripple { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.3); transform: scale(0); animation: rippleAnim 0.6s linear; pointer-events: none; }
+        @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
+        /* Stats row */
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 3.5rem;
+            padding-top: 2.5rem;
+            border-top: 1px solid var(--glass-border);
+        }
+        .stat-item { text-align: center; }
+        .stat-num {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--neon-teal), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label { font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; letter-spacing: 0.5px; }
+
+        /* ════════════════════════════════
+           INTERVIEW SCREEN
+        ════════════════════════════════ */
+        #interview-screen {
+            flex-direction: column;
+            padding: 0;
+        }
+
+        /* Top bar */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 2.5rem;
+            background: rgba(6,6,15,0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .topbar-logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .topbar-title {
+            font-family: 'DM Sans', sans-serif;
+            font-style: italic;
+            font-size: 1.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f0f0ff 0%, var(--neon-cyan) 50%, var(--neon-purple) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+        .live-badge {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 14px;
+            background: rgba(16,185,129,0.1);
+            border: 1px solid rgba(16,185,129,0.25);
+            border-radius: 100px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--neon-green);
+            font-weight: 500;
+        }
+        .live-dot {
+            width: 7px; height: 7px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--neon-green);
+            animation: blink 1.2s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* Session timer */
+        .session-timer {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            padding: 6px 14px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+        }
+
+        /* Main layout */
+        .interview-body {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 0;
+            flex: 1;
+            height: calc(100vh - 65px);
+        }
+
+        /* Left — video panel */
+        .video-panel {
+            display: flex;
+            flex-direction: column;
+            padding: 1.8rem;
+            gap: 1.2rem;
+            background: rgba(6,6,15,0.5);
+            border-right: 1px solid var(--glass-border);
+        }
+
+        .video-wrap {
+            position: relative;
+            flex: 1;
+            max-width: 85%;
+            max-height: 85%;
+            margin: auto;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #000;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 0 60px rgba(168,85,247,0.08);
+        }
+
+        #videoElement {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        #videoOverlay {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+        }
+
+        /* Scanning overlay line */
+        .scan-line {
+            position: absolute;
+            left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+            animation: scanDown 3s ease-in-out infinite;
+            opacity: 0.7;
+            pointer-events: none;
+            z-index: 5;
+        }
+        @keyframes scanDown {
+            0% { top: 0%; opacity: 0.7; }
+            45% { opacity: 0.7; }
+            50% { top: 100%; opacity: 0; }
+            51% { top: 0%; opacity: 0; }
+            55% { opacity: 0.7; }
+            100% { top: 100%; opacity: 0.7; }
+        }
+
+        /* Corner brackets on video */
+        .corner { position: absolute; width: 22px; height: 22px; z-index: 6; pointer-events: none; }
+        .corner-tl { top: 12px; left: 12px; border-top: 2px solid var(--neon-cyan); border-left: 2px solid var(--neon-cyan); border-radius: 3px 0 0 0; }
+        .corner-tr { top: 12px; right: 12px; border-top: 2px solid var(--neon-cyan); border-right: 2px solid var(--neon-cyan); border-radius: 0 3px 0 0; }
+        .corner-bl { bottom: 12px; left: 12px; border-bottom: 2px solid var(--neon-cyan); border-left: 2px solid var(--neon-cyan); border-radius: 0 0 0 3px; }
+        .corner-br { bottom: 12px; right: 12px; border-bottom: 2px solid var(--neon-cyan); border-right: 2px solid var(--neon-cyan); border-radius: 0 0 3px 0; }
+
+        /* Video bottom tag */
+        .video-tag {
+            position: absolute;
+            bottom: 14px; left: 14px;
+            display: flex; align-items: center; gap: 6px;
+            padding: 5px 12px;
+            background: rgba(6,6,15,0.8);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--neon-teal);
+            backdrop-filter: blur(8px);
+            z-index: 6;
+        }
+
+        /* Emotion timeline bar */
+        .timeline-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            backdrop-filter: blur(10px);
+        }
+        .timeline-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+        .timeline-track {
+            flex: 1;
+            height: 6px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            gap: 2px;
+        }
+        .timeline-seg {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+            min-width: 4px;
+        }
+
+        /* ── RIGHT PANEL ── */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            padding: 1.8rem 1.5rem;
+            gap: 1rem;
+            overflow-y: auto;
+            background: var(--bg-secondary);
+        }
+
+        .panel-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            margin-bottom: 0.2rem;
+        }
+
+        /* Emotion card */
+        .emotion-card {
+            padding: 1.3rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            transition: border-color 0.3s;
+        }
+        .emotion-card:hover { border-color: var(--glass-border-bright); }
+
+        .emotion-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0.8rem;
+        }
+        .emotion-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .emotion-icon {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem;
+            background: rgba(168,85,247,0.1);
+            border: 1px solid rgba(168,85,247,0.2);
+        }
+
+        /* Voice card */
+        .voice-card {
+            padding: 1.3rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+        }
+        .voice-display {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 0.8rem;
+        }
+        .voice-waves {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            height: 28px;
+        }
+        .wave-bar {
+            width: 4px;
+            background: var(--neon-teal);
+            border-radius: 2px;
+            animation: wavePulse 1s ease-in-out infinite;
+            box-shadow: 0 0 6px var(--neon-teal);
+        }
+        .wave-bar:nth-child(1) { height: 40%; animation-delay: 0s; }
+        .wave-bar:nth-child(2) { height: 70%; animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { height: 100%; animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { height: 60%; animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { height: 40%; animation-delay: 0.4s; }
+        .wave-bar:nth-child(6) { height: 80%; animation-delay: 0.15s; }
+        .wave-bar:nth-child(7) { height: 50%; animation-delay: 0.25s; }
+        @keyframes wavePulse {
+            0%, 100% { transform: scaleY(0.4); opacity: 0.6; }
+            50% { transform: scaleY(1); opacity: 1; }
+        }
+        .voice-status-text {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        /* Metric bar cards */
+        .metric-card {
+            padding: 1.3rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .metric-card:hover { border-color: var(--glass-border-bright); }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .metric-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        .metric-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .metric-value.conf { color: var(--neon-cyan); }
+        .metric-value.stress-low { color: var(--neon-green); }
+        .metric-value.stress-med { color: var(--warning); }
+        .metric-value.stress-high { color: var(--danger); }
+
+        .neon-bar-wrap {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 100px;
+            overflow: hidden;
+        }
+        .neon-bar {
+            height: 100%;
+            border-radius: 100px;
+            transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+            position: relative;
+        }
+        .neon-bar.conf-bar {
+            background: linear-gradient(90deg, var(--neon-purple), var(--neon-cyan));
+            box-shadow: 0 0 12px rgba(34,211,238,0.5);
+        }
+        .neon-bar.stress-bar-el {
+            background: linear-gradient(90deg, var(--neon-green), var(--warning));
+        }
+        .neon-bar.stress-bar-el.high {
+            background: linear-gradient(90deg, var(--warning), var(--danger));
+            box-shadow: 0 0 12px rgba(244,63,94,0.5);
+        }
+
+        /* Divider */
+        .glow-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--glass-border-bright), transparent);
+            margin: 0.2rem 0;
+        }
+
+        /* End button */
+        .end-btn {
+            margin-top: auto;
+            padding: 15px;
+            background: rgba(244,63,94,0.08);
+            border: 1px solid rgba(244,63,94,0.25);
+            border-radius: 14px;
+            color: var(--danger);
+            font-family: 'Syne', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+        }
+        .end-btn:hover {
+            background: rgba(244,63,94,0.15);
+            border-color: rgba(244,63,94,0.5);
+            box-shadow: 0 0 20px rgba(244,63,94,0.2);
+            transform: translateY(-1px);
+        }
+
+        /* ════════════════════════════════
+           REPORT SCREEN
+        ════════════════════════════════ */
+        #report-screen {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .report-inner {
+            width: 100%;
+            max-width: 860px;
+            animation: riseIn 0.7s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .report-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 16px;
+            background: rgba(16,185,129,0.1);
+            border: 1px solid rgba(16,185,129,0.3);
+            border-radius: 100px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--neon-green);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 1.2rem;
+        }
+        .report-title {
+            font-family: 'DM Sans', sans-serif;
+            font-style: italic;
+            text-transform: uppercase;
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #f0f0ff 0%, var(--neon-cyan) 50%, var(--neon-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.6rem;
+            line-height: 1.1;
+        }
+        .report-subtitle {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
+        /* Report cards grid */
+        .report-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .report-card {
+            padding: 2rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s, transform 0.2s;
+        }
+        .report-card:hover { border-color: var(--glass-border-bright); transform: translateY(-3px); }
+        .report-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle at center, var(--card-glow) 0%, transparent 60%);
+            opacity: 0.06;
+            pointer-events: none;
+        }
+        .report-card.conf-card { --card-glow: var(--neon-cyan); border-color: rgba(34,211,238,0.15); }
+        .report-card.stress-card { --card-glow: var(--danger); border-color: rgba(244,63,94,0.15); }
+        .report-card.stress-card.low { --card-glow: var(--neon-green); border-color: rgba(16,185,129,0.15); }
+        .report-card.stress-card.warn { --card-glow: var(--warning); border-color: rgba(245,158,11,0.15); }
+        .report-card.stress-card.danger { --card-glow: var(--danger); border-color: rgba(244,63,94,0.15); }
+        .report-card.lie-card { --card-glow: var(--neon-purple); border-color: rgba(168,85,247,0.15); }
+
+        .rc-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+        .rc-big {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(1.6rem, 4vw, 2.8rem);
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        .rc-big.cyan { color: var(--neon-cyan); text-shadow: 0 0 40px rgba(34,211,238,0.4); }
+        .rc-big.green { color: var(--neon-green); text-shadow: 0 0 40px rgba(16,185,129,0.4); }
+        .rc-big.warn { color: var(--warning); text-shadow: 0 0 40px rgba(245,158,11,0.4); }
+        .rc-big.danger { color: var(--danger); text-shadow: 0 0 40px rgba(244,63,94,0.4); }
+        .rc-sub { font-size: 0.85rem; color: var(--text-dim); }
+
+        /* Emotion breakdown */
+        .emotion-breakdown {
+            padding: 1.8rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+        }
+        .eb-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .eb-bars { display: flex; flex-direction: column; gap: 10px; }
+        .eb-row {
+            display: grid;
+            grid-template-columns: 90px 1fr 40px;
+            align-items: center;
+            gap: 12px;
+        }
+        .eb-name {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+        .eb-bar-wrap {
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 100px;
+            overflow: hidden;
+        }
+        .eb-bar-fill {
+            height: 100%;
+            border-radius: 100px;
+            transition: width 1s cubic-bezier(0.4,0,0.2,1);
+        }
+        .eb-pct {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            text-align: right;
+        }
+
+        /* Recommendation box */
+        .recommendation {
+            padding: 1.5rem 2rem;
+            background: rgba(16,185,129,0.06);
+            border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 2rem;
+        }
+        .rec-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+        .rec-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--neon-green);
+            margin-bottom: 3px;
+        }
+        .rec-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; }
+
+        /* Report buttons */
+        .report-btns {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        .btn-home {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            padding: 15px 36px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 0 20px rgba(168,85,247,0.3);
+        }
+        .btn-home:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(168,85,247,0.5); }
+
+        .btn-download {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            padding: 15px 36px;
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border-bright);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+        .btn-download:hover { background: var(--bg-card-hover); transform: translateY(-2px); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 2px; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .interview-body { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+            .right-panel { height: auto; max-height: 50vh; }
+            .report-cards { grid-template-columns: 1fr; }
+            .topbar-title { display: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Background -->
+<div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+<div class="bg-grid"></div>
+
+<!-- ══════════════ START SCREEN ══════════════ -->
+<div id="start-screen" class="screen active">
+    <div class="start-inner">
+        <div class="badge">🧠 AI-Powered · Real-Time Analysis</div>
+
+        <h1 class="start-title">Read Every<br>Candidate.</h1>
+
+        <p class="start-desc">
+            Advanced facial expression &amp; voice pattern AI that measures stress, 
+            confidence, and behavioral signals — second by second, during the interview.
+        </p>
+
+        <div class="feature-pills">
+            <div class="pill"><span class="pill-dot teal"></span>Facial Landmark Tracking</div>
+            <div class="pill"><span class="pill-dot purple"></span>Voice Pattern Analysis</div>
+            <div class="pill"><span class="pill-dot cyan"></span>Instant PDF Reports</div>
+        </div>
+
+        <button type="button" class="start-btn" id="startBtn" onclick="startInterview()">
+            Start Interview Session
+        </button>
+
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="stat-num">68</div>
+                <div class="stat-label">Facial Points</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">1.5s</div>
+                <div class="stat-label">Refresh Rate</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">99%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">∞</div>
+                <div class="stat-label">Sessions</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════ INTERVIEW SCREEN ══════════════ -->
+<div id="interview-screen" class="screen">
+    <!-- Top bar -->
+    <div class="topbar">
+        <div class="topbar-logo">NeuralRead</div>
+        <div class="topbar-title">Live Analysis Dashboard</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div class="session-timer" id="sessionTimer">00:00</div>
+            <div class="live-badge">
+                <div class="live-dot"></div>
+                Recording & Analyzing
+            </div>
+        </div>
+    </div>
+
+    <!-- Body -->
+    <div class="interview-body">
+
+        <!-- Left: Video -->
+        <div class="video-panel">
+            <div class="video-wrap">
+                <!-- remote candidate video -->
+                <video id="videoElement" autoplay playsinline></video>
+                <!-- local interviewer floating corner -->
+                <video id="localVideo" autoplay playsinline muted style="position:absolute; top:20px; right:20px; width:150px; border-radius:12px; border:2px solid var(--neon-cyan); z-index:10; box-shadow:0 0 20px rgba(0,0,0,0.5);"></video>
+
+                <!-- NEW MEDIA TAGS -->
+                <div style="position:absolute; bottom:20px; right:20px; display:flex; gap:10px; z-index:15;">
+                    <div id="cand-mic-tag" title="Audio Connected" style="background:rgba(60,64,67,0.8); color:white; padding:10px; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px); box-shadow:0 1px 3px rgba(0,0,0,0.5);">🎤</div>
+                    <div id="cand-cam-tag" title="Video Connected" style="background:rgba(60,64,67,0.8); color:white; padding:10px; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px); box-shadow:0 1px 3px rgba(0,0,0,0.5);">📷</div>
+                </div>
+
+                <canvas id="videoOverlay"></canvas>
+                <div class="scan-line"></div>
+                <div class="corner corner-tl"></div>
+                <div class="corner corner-tr"></div>
+                <div class="corner corner-bl"></div>
+                <div class="corner corner-br"></div>
+                <div class="video-tag">⬤ AWAITING CANDIDATE...</div>
+            </div>
+
+            <!-- Emotion timeline -->
+            <div class="timeline-bar">
+                <div class="timeline-label">Timeline</div>
+                <div class="timeline-track" id="emotionTimeline"></div>
+            </div>
+        </div>
+
+        <!-- Right: Metrics -->
+        <div class="right-panel" style="position:relative; overflow:hidden;">
+            <!-- PAUSED OVERLAY -->
+            <div id="no-face-overlay" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(30, 41, 59, 0.7); backdrop-filter:blur(8px) grayscale(1); display:none; flex-direction:column; justify-content:center; align-items:center; z-index:100; border-radius:12px; transition: opacity 0.3s;">
+                <div style="font-size:3.5rem; margin-bottom:10px;">⏸️</div>
+                <div style="color:white; font-weight:bold; font-size:1.8rem; margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;">Paused</div>
+                <div id="paused-reason" style="color:var(--text-mod); font-size:0.9rem; text-align:center; padding: 0 20px;">Waiting for candidate audio/video connection...</div>
+            </div>
+
+            <p class="panel-title">Current Metrics</p>
+
+            <!-- Emotion -->
+            <div class="emotion-card">
+                <div class="panel-title">Detected Emotion</div>
+                <div class="emotion-display">
+                    <div class="emotion-name" id="emotion-val">Neutral</div>
+                    <div class="emotion-icon" id="emotion-icon">😐</div>
+                </div>
+            </div>
+
+            <!-- Voice -->
+            <div class="voice-card">
+                <div class="panel-title">Voice Pattern</div>
+                <div class="voice-display">
+                    <div class="voice-waves">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                    <div class="voice-status-text" id="voice-val">Analyzing…</div>
+                </div>
+            </div>
+
+            <div class="glow-divider"></div>
+
+            <!-- Confidence -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-label">Est. Confidence</div>
+                    <div class="metric-value conf" id="conf-text">50%</div>
+                </div>
+                <div class="neon-bar-wrap">
+                    <div class="neon-bar conf-bar" id="conf-bar" style="width:50%"></div>
+                </div>
+            </div>
+
+            <!-- Stress -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-label">Est. Stress Level</div>
+                    <div class="metric-value stress-low" id="stress-text">Normal</div>
+                </div>
+                <div class="neon-bar-wrap">
+                    <div class="neon-bar stress-bar-el" id="stress-bar" style="width:20%"></div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div style="display:flex; justify-content:space-between; margin-bottom: 20px; gap:10px;">
+                <!-- Mic Button -->
+                <div id="btn-audio" onclick="toggleAudio()" style="flex:1; display:flex; align-items:center; justify-content:center; background:rgba(60,64,67,0.9); border-radius:24px; cursor:pointer; overflow:hidden; transition:background 0.3s; box-shadow:0 1px 3px rgba(0,0,0,0.3); color:white;">
+                    <div style="padding:10px 14px; background:rgba(255,255,255,0.05); border-right:1px solid rgba(255,255,255,0.1);">▲</div>
+                    <div id="audio-icon-wrap" style="padding:10px 18px; display:flex; gap:8px; align-items:center;"><span id="ic-audio">🎤</span> Mute</div>
+                </div>
+                
+                <!-- Video Button -->
+                <div id="btn-video" onclick="toggleVideo()" style="flex:1; display:flex; align-items:center; justify-content:center; background:rgba(60,64,67,0.9); border-radius:24px; cursor:pointer; overflow:hidden; transition:background 0.3s; box-shadow:0 1px 3px rgba(0,0,0,0.3); color:white;">
+                    <div style="padding:10px 14px; background:rgba(255,255,255,0.05); border-right:1px solid rgba(255,255,255,0.1);">▲</div>
+                    <div id="video-icon-wrap" style="padding:10px 18px; display:flex; gap:8px; align-items:center;"><span id="ic-video">📷</span> Stop Video</div>
+                </div>
+            </div>
+
+            <!-- End button -->
+            <button type="button" class="end-btn" onclick="endInterview()">
+                ⬛ End Session & Generate Report
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════ REPORT SCREEN ══════════════ -->
+<div id="report-screen" class="screen">
+    <div class="report-inner">
+
+        <div class="report-header">
+            <div class="report-badge">✓ Session Complete</div>
+            <h2 class="report-title">Behavioral Analysis Report</h2>
+            <p class="report-subtitle">AI-generated candidate assessment based on facial &amp; voice data</p>
+        </div>
+
+        <div class="report-cards">
+            <div class="report-card conf-card">
+                <div class="rc-label">Average Confidence</div>
+                <div class="rc-big cyan" id="final-conf">--%</div>
+                <div class="rc-sub">Composite AI Score</div>
+            </div>
+            <div class="report-card stress-card">
+                <div class="rc-label">Average Stress</div>
+                <div class="rc-big green" id="final-stress">--</div>
+                <div class="rc-sub" id="final-stress-sub">Behavioral indicator</div>
+            </div>
+            <div class="report-card lie-card">
+                <div class="rc-label">Lie Probability</div>
+                <div class="rc-big neon-purple" id="final-lie">--%</div>
+                <div class="rc-sub" id="final-lie-sub">Behavioral anomaly index</div>
+            </div>
+        </div>
+
+        <!-- Emotion breakdown -->
+        <div class="emotion-breakdown">
+            <div class="eb-title">Emotion Distribution</div>
+            <div class="eb-bars" id="emotionBreakdown">
+                <!-- filled by JS -->
+            </div>
+        </div>
+
+        <!-- Recommendation -->
+        <div class="recommendation" id="recommendation">
+            <div class="rec-icon">🎯</div>
+            <div>
+                <div class="rec-title">Recruiter Signal</div>
+                <div class="rec-text" id="rec-text">Generating recommendation…</div>
+            </div>
+        </div>
+
+        <div class="report-btns">
+            <button class="btn-download" onclick="window.print()">⬇ Download Report</button>
+            <button class="btn-home" onclick="location.reload()">← New Session</button>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden canvas -->
+<canvas id="captureCanvas" style="display:none;"></canvas>
+
+<!-- Add Socket.IO -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+<script>
+// ── Cursor ──
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx + 'px'; cursor.style.top = my + 'px'; });
+(function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    cursorRing.style.left = rx + 'px';
+    cursorRing.style.top = ry + 'px';
+    requestAnimationFrame(animRing);
+})();
+document.querySelectorAll('button, a').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(2.5)'; cursorRing.style.transform = 'translate(-50%,-50%) scale(1.5)'; });
+    el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)'; cursorRing.style.transform = 'translate(-50%,-50%) scale(1)'; });
+});
+
+// ── Ripple on start button ──
+document.getElementById('startBtn').addEventListener('click', function(e) {
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    const rect = this.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    r.style.width = r.style.height = size + 'px';
+    r.style.left = (e.clientX - rect.left - size/2) + 'px';
+    r.style.top = (e.clientY - rect.top - size/2) + 'px';
+    this.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+});
+
+// ── WebRTC & Core variables ──
+const socket = io();
+const ROOM_ID = "{{ room_id }}";
+let localStream;
+let peerConnection;
+const rtcConfig = {
+    iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+        { urls: "stun:stun2.l.google.com:19302" },
+        // Free TURN servers — relay media when P2P fails (e.g. through ngrok)
+        {
+            urls: "turn:openrelay.metered.ca:80",
+            username: "openrelayproject",
+            credential: "openrelayproject"
+        },
+        {
+            urls: "turn:openrelay.metered.ca:443",
+            username: "openrelayproject",
+            credential: "openrelayproject"
+        },
+        {
+            urls: "turn:openrelay.metered.ca:443?transport=tcp",
+            username: "openrelayproject",
+            credential: "openrelayproject"
+        }
+    ],
+    iceCandidatePoolSize: 10
+};
+
+const video = document.getElementById("videoElement"); // remote candidate
+const localVideo = document.getElementById("localVideo"); // local interviewer
+const overlay = document.getElementById("videoOverlay");
+const ctx = overlay.getContext("2d");
+const captureCanvas = document.getElementById("captureCanvas");
+const captureCtx = captureCanvas.getContext("2d");
+
+let interviewInterval = null;
+let mediaRecorder = null;
+let sessionSeconds = 0;
+let timerInterval = null;
+window.lastVoice = "Stable";
+
+const stats = { emotions: [], confidences: [], stresses: [] };
+
+const ui = {
+    emotion: document.getElementById('emotion-val'),
+    emotionIcon: document.getElementById('emotion-icon'),
+    voice: document.getElementById('voice-val'),
+    confBar: document.getElementById('conf-bar'),
+    confText: document.getElementById('conf-text'),
+    stressBar: document.getElementById('stress-bar'),
+    stressText: document.getElementById('stress-text')
+};
+
+const emotionEmojis = { happy:'😊', sad:'😔', fear:'😰', angry:'😠', neutral:'😐', surprise:'😮', disgust:'😒' };
+const emotionColors = { happy:'#10b981', sad:'#6366f1', fear:'#f59e0b', angry:'#f43f5e', neutral:'#6b7280', surprise:'#a855f7', disgust:'#8b5cf6' };
+
+function switchScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+// ── Session timer ──
+function startTimer() {
+    timerInterval = setInterval(() => {
+        sessionSeconds++;
+        const m = String(Math.floor(sessionSeconds/60)).padStart(2,'0');
+        const s = String(sessionSeconds%60).padStart(2,'0');
+        document.getElementById('sessionTimer').textContent = m+':'+s;
+    }, 1000);
+}
+
+// ── WebRTC Signaling ──
+// Handle Remote end
+socket.on('session-ended', (data) => {
+    if (data.by === 'candidate') {
+        alert("The candidate has ended the session. Generating final report...");
+        endInterview(true);
+    }
+});
+
+socket.on('user-joined', async (data) => {
+    if (data.role === 'candidate') {
+        // Close old connection if re-joining
+        if (peerConnection) {
+            peerConnection.close();
+            peerConnection = null;
+            video.srcObject = null;
+        }
+
+        document.querySelector('.video-tag').innerText = "⬤ LIVE · AI ACTIVE";
+        
+        peerConnection = new RTCPeerConnection(rtcConfig);
+        
+        // Add local stream tracks to P2P
+        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+        // Log ICE connection state changes for debugging
+        peerConnection.oniceconnectionstatechange = () => {
+            console.log('[Interviewer] ICE state:', peerConnection.iceConnectionState);
+            if (peerConnection.iceConnectionState === 'failed') {
+                console.warn('[Interviewer] ICE failed — trying ICE restart');
+                peerConnection.restartIce();
+            }
+        };
+
+        // When remote candidate tracks arrive
+        peerConnection.ontrack = event => {
+            console.log('[Interviewer] Got remote track:', event.track.kind);
+            if (event.track.kind === 'video') {
+                video.srcObject = event.streams[0];
+                video.play().catch(e => console.error("Autoplay blocked:", e));
+                video.onloadedmetadata = () => {
+                    overlay.width = video.videoWidth;
+                    overlay.height = video.videoHeight;
+                    captureCanvas.width = video.videoWidth;
+                    captureCanvas.height = video.videoHeight;
+                    captureAndAnalyze(); // Start AI tracking the candidate
+                    
+                    // Voice recording interval for the backend
+                    mediaRecorder = new MediaRecorder(event.streams[0]);
+                    mediaRecorder.ondataavailable = (e) => {
+                        window.lastVoice = "Stable";
+                    };
+                };
+            } else if (event.track.kind === 'audio') {
+                let audioEl = document.getElementById('remoteAudio');
+                if (!audioEl) {
+                    audioEl = document.createElement("audio");
+                    audioEl.id = "remoteAudio";
+                    audioEl.autoplay = true;
+                    document.body.appendChild(audioEl);
+                }
+                audioEl.srcObject = event.streams[0];
+                audioEl.volume = 1.0;
+                setTimeout(() => audioEl.play().catch(e => {}), 100);
+            }
+        };
+
+        // ICE Candidates
+        peerConnection.onicecandidate = event => {
+            if (event.candidate) {
+                socket.emit('ice-candidate', { room: ROOM_ID, candidate: event.candidate });
+            }
+        };
+
+        // Create the Offer and send to candidate
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        socket.emit('offer', { room: ROOM_ID, offer: offer });
+    }
+});
+
+// Re-announce interviewer if candidate refreshes and we're already in session
+socket.on('reconnect', () => {
+    if (localStream) socket.emit('join', { room: ROOM_ID, role: 'interviewer' });
+});
+
+let remoteAudioEnabled = true;
+let remoteVideoEnabled = true;
+
+function updatePausedOverlay() {
+    const overlay = document.getElementById('no-face-overlay');
+    const reason = document.getElementById('paused-reason');
+    
+    if (remoteVideoEnabled) {
+        if (noFaceFrames > 2) {
+            reason.innerText = "Waiting for candidate to return to frame...";
+            overlay.style.display = 'flex';
+        } else {
+            overlay.style.display = 'none';
+        }
+    } else {
+        overlay.style.display = 'none'; // Don't cover dashboard when intentionally muted
+    }
+}
+
+socket.on('media-state', (data) => {
+    if (data.type === 'audio') {
+        remoteAudioEnabled = data.enabled;
+        const tag = document.getElementById('cand-mic-tag');
+        if (tag) {
+            tag.innerHTML = data.enabled ? '🎤' : '🔇';
+            tag.title = data.enabled ? 'Audio Connected' : 'Audio Muted';
+            tag.style.background = data.enabled ? 'rgba(60,64,67,0.8)' : '#ea4335';
+        }
+        if (!data.enabled) {
+            ui.voice.innerText = "Voice analysis paused";
+        } else {
+            ui.voice.innerText = "Analyzing…";
+        }
+    } else if (data.type === 'video') {
+        remoteVideoEnabled = data.enabled;
+        const tag = document.getElementById('cand-cam-tag');
+        if (tag) {
+            tag.innerHTML = data.enabled ? '📷' : '🚫';
+            tag.title = data.enabled ? 'Video Connected' : 'Video Off';
+            tag.style.background = data.enabled ? 'rgba(60,64,67,0.8)' : '#ea4335';
+        }
+        if (!data.enabled) {
+            ui.emotion.innerText = "Face detection paused";
+            ui.emotionIcon.innerText = '⏸️';
+        }
+    }
+    updatePausedOverlay();
+});
+
+// Buffer ICE candidates that arrive before remoteDescription is set
+let pendingCandidates = [];
+
+socket.on('answer', async (answer) => {
+    if (peerConnection) {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        // Flush buffered ICE candidates
+        for (const c of pendingCandidates) {
+            try { await peerConnection.addIceCandidate(new RTCIceCandidate(c)); } catch(e) {}
+        }
+        pendingCandidates = [];
+    }
+});
+
+socket.on('ice-candidate', async (candidate) => {
+    if (peerConnection && peerConnection.remoteDescription) {
+        try {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch(e) { console.warn('ICE add error:', e); }
+    } else {
+        pendingCandidates.push(candidate);
+    }
+});
+
+
+// ── Start interview (Interviewer local camera) ──
+async function startInterview() {
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        localVideo.srcObject = localStream;
+        switchScreen('interview-screen');
+        startTimer();
+
+        // Connect interviewer socket
+        socket.emit('join', { room: ROOM_ID, role: 'interviewer' });
+
+    } catch(err) {
+        alert("Camera access denied or unavailable.");
+        console.error(err);
+    }
+}
+
+// ── Capture & analyze ──
+let noFaceFrames = 0;
+function captureAndAnalyze() {
+    if (!video.videoWidth) return;
+    
+    // Explicit Hard Pause Check
+    if (!remoteVideoEnabled) {
+        ctx.clearRect(0,0,overlay.width,overlay.height);
+        
+        ui.emotion.innerText = "Face detection paused";
+        ui.emotionIcon.innerText = '⏸️';
+
+        if (interviewInterval !== "STOPPED") {
+            interviewInterval = setTimeout(captureAndAnalyze, 1500);
+        }
+        return;
+    }
+
+    captureCtx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+
+    captureCanvas.toBlob(blob => {
+        const fd = new FormData();
+        fd.append("image", blob, "frame.png");
+
+        fetch("/analyze", { method:"POST", body:fd })
+            .then(r=>r.json())
+            .then(data => {
+                if (data.status === "success" && data.emotion) {
+                    noFaceFrames = 0;
+                    document.getElementById('no-face-overlay').style.display = 'none';
+                    updateDashboard(data);
+                    drawFaceBox(data.region);
+                } else {
+                    noFaceFrames++;
+                    ctx.clearRect(0,0,overlay.width,overlay.height);
+                    if (noFaceFrames > 2) {
+                        document.getElementById('no-face-overlay').style.display = 'flex';
+                    }
+                    ui.emotion.innerText = "--";
+                    ui.confidence.innerText = "--";
+                    ui.stress.innerText = "--";
+                    ui.emotionIcon.innerText = '❓';
+                }
+            })
+            .catch(() => { ui.emotion.innerText = "Backend Offline"; ui.emotionIcon.innerText = '⚠️'; })
+            .finally(() => {
+                if (interviewInterval !== "STOPPED") {
+                    interviewInterval = setTimeout(captureAndAnalyze, 1500);
+                }
+            });
+    }, "image/png");
+}
+
+let audioEnabled = true;
+function toggleAudio() {
+    if (localStream) {
+        const track = localStream.getAudioTracks()[0];
+        if (track) {
+            audioEnabled = !audioEnabled;
+            track.enabled = audioEnabled;
+            const btn = document.getElementById('btn-audio');
+            const icWrap = document.getElementById('audio-icon-wrap');
+            if (audioEnabled) {
+                btn.style.background = 'rgba(60,64,67,0.9)';
+                icWrap.innerHTML = '<span id="ic-audio">🎤</span> Mute';
+            } else {
+                btn.style.background = '#ea4335';
+                icWrap.innerHTML = '<span id="ic-audio">🔇</span> Unmute';
+            }
+        }
+    }
+}
+
+let videoEnabled = true;
+function toggleVideo() {
+    if (localStream) {
+        const track = localStream.getVideoTracks()[0];
+        if (track) {
+            videoEnabled = !videoEnabled;
+            track.enabled = videoEnabled;
+            const btn = document.getElementById('btn-video');
+            const icWrap = document.getElementById('video-icon-wrap');
+            if (videoEnabled) {
+                btn.style.background = 'rgba(60,64,67,0.9)';
+                icWrap.innerHTML = '<span id="ic-video">📷</span> Stop Video';
+            } else {
+                btn.style.background = '#ea4335';
+                icWrap.innerHTML = '<span id="ic-video">🚫</span> Start Video';
+            }
+        }
+    }
+}
+
+// ── Update dashboard ──
+function updateDashboard(data) {
+    const emotion = data.emotion.toLowerCase();
+    ui.emotion.innerText = data.emotion.charAt(0).toUpperCase() + data.emotion.slice(1);
+    ui.emotionIcon.innerText = emotionEmojis[emotion] || '🤔';
+
+    const isNervous = window.lastVoice.includes("Nervous");
+    let conf = 100, stress = 0;
+
+    if (['sad','fear','angry'].includes(emotion)) { stress = isNervous ? 90:70; conf = isNervous ? 20:40; }
+    else if (emotion === 'neutral') { stress = isNervous ? 50:20; conf = isNervous ? 60:80; }
+    else if (emotion === 'happy') { stress = isNervous ? 25:5; conf = isNervous ? 75:95; }
+    else { stress = isNervous ? 60:40; conf = isNervous ? 40:60; }
+
+    ui.confBar.style.width = conf + '%';
+    ui.confText.innerText = conf + '%';
+    ui.stressBar.style.width = stress + '%';
+
+    // Stress color classes
+    ui.stressBar.classList.remove('high');
+    if (stress >= 70) {
+        ui.stressText.innerText = 'High'; ui.stressText.className = 'metric-value stress-high';
+        ui.stressBar.classList.add('high');
+    } else if (stress >= 40) {
+        ui.stressText.innerText = 'Medium'; ui.stressText.className = 'metric-value stress-med';
+    } else {
+        ui.stressText.innerText = 'Normal'; ui.stressText.className = 'metric-value stress-low';
+    }
+
+    stats.emotions.push(emotion);
+    stats.confidences.push(conf);
+    stats.stresses.push(stress);
+    updateTimeline(emotion);
+}
+
+// ── Emotion timeline ──
+function updateTimeline(emotion) {
+    const track = document.getElementById('emotionTimeline');
+    const seg = document.createElement('div');
+    seg.className = 'timeline-seg';
+    seg.style.background = emotionColors[emotion] || '#6b7280';
+    seg.style.flex = '1';
+    seg.style.minWidth = '4px';
+    seg.style.maxWidth = '12px';
+    track.appendChild(seg);
+    if (track.children.length > 40) track.removeChild(track.firstChild);
+}
+
+// ── Draw face box ──
+function drawFaceBox(region) {
+    ctx.clearRect(0,0,overlay.width,overlay.height);
+    if (!region || !region.w) return;
+
+    // Glow box
+    ctx.shadowColor = '#22d3ee';
+    ctx.shadowBlur = 15;
+    ctx.strokeStyle = 'rgba(34,211,238,0.9)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.rect(region.x, region.y, region.w, region.h);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Corners
+    const L = 18;
+    ctx.strokeStyle = '#a855f7';
+    ctx.lineWidth = 3;
+    ctx.shadowColor = '#a855f7';
+    ctx.shadowBlur = 10;
+    [[region.x, region.y, 1, 1],[region.x+region.w, region.y, -1, 1],[region.x, region.y+region.h, 1, -1],[region.x+region.w, region.y+region.h, -1, -1]]
+        .forEach(([x,y,dx,dy]) => {
+            ctx.beginPath();
+            ctx.moveTo(x + dx*L, y);
+            ctx.lineTo(x, y);
+            ctx.lineTo(x, y + dy*L);
+            ctx.stroke();
+        });
+    ctx.shadowBlur = 0;
+}
+
+// ── End interview ──
+function endInterview(triggeredByRemote = false) {
+    if (!triggeredByRemote) {
+        socket.emit('end-session', { room: ROOM_ID, by: 'Interviewer' });
+    }
+
+    clearTimeout(interviewInterval);
+    interviewInterval = "STOPPED";
+    clearInterval(timerInterval);
+
+    if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+    if (localStream) localStream.getTracks().forEach(t => t.stop());
+    if (peerConnection) peerConnection.close();
+
+    if (stats.confidences.length > 0) {
+        const avgC = Math.round(stats.confidences.reduce((a,b)=>a+b,0) / stats.confidences.length);
+        const avgS = stats.stresses.reduce((a,b)=>a+b,0) / stats.stresses.length;
+
+        let stressLabel = 'Low', stressClass = 'green', stressCardState = 'low';
+        if (avgS >= 80) { stressLabel = 'High'; stressClass = 'danger'; stressCardState = 'danger'; }
+        else if (avgS >= 50) { stressLabel = 'Medium'; stressClass = 'warn'; stressCardState = 'warn'; }
+        else if (avgS >= 30) { stressLabel = 'Normal'; stressClass = 'green'; stressCardState = 'low'; }
+        else { stressLabel = 'Low'; stressClass = 'green'; stressCardState = 'low'; }
+
+        document.getElementById('final-conf').innerText = avgC + '%';
+        document.getElementById('final-stress').innerText = stressLabel;
+        document.getElementById('final-stress').className = 'rc-big ' + stressClass;
+
+        const stressCardEl = document.querySelector('.report-card.stress-card');
+        if (stressCardEl) {
+            stressCardEl.classList.remove('low', 'warn', 'danger');
+            stressCardEl.classList.add(stressCardState);
+        }
+
+        // Emotion breakdown
+        const emotionCounts = {};
+        stats.emotions.forEach(e => { emotionCounts[e] = (emotionCounts[e]||0)+1; });
+        const total = stats.emotions.length;
+        const ebEl = document.getElementById('emotionBreakdown');
+        ebEl.innerHTML = '';
+        Object.entries(emotionCounts).sort((a,b)=>b[1]-a[1]).forEach(([em, cnt]) => {
+            const pct = Math.round(cnt/total*100);
+            const row = document.createElement('div');
+            row.className = 'eb-row';
+            row.innerHTML = `
+                <div class="eb-name">${em.charAt(0).toUpperCase()+em.slice(1)}</div>
+                <div class="eb-bar-wrap"><div class="eb-bar-fill" style="width:0%;background:${emotionColors[em]||'#6b7280'}"></div></div>
+                <div class="eb-pct">${pct}%</div>`;
+            ebEl.appendChild(row);
+            setTimeout(() => row.querySelector('.eb-bar-fill').style.width = pct+'%', 100);
+        });
+
+        // --- Lie Probability Algorithm ---
+        let lieProb = 5; // Base risk
+        if (avgS >= 70) lieProb += 40;
+        else if (avgS >= 40) lieProb += 20;
+
+        if (avgC < 50) lieProb += 35;
+        else if (avgC < 80) lieProb += 15;
+        
+        Object.entries(emotionCounts).forEach(([em, cnt]) => {
+            const pct = cnt / total * 100;
+            if ((em === 'fear' || em === 'disgust') && pct > 15) { lieProb += 20; }
+        });
+        
+        lieProb = Math.min(100, lieProb); // Cap at 100%
+        
+        let lieClass = 'green';
+        if (lieProb >= 60) lieClass = 'danger';
+        else if (lieProb >= 30) lieClass = 'warn';
+
+        document.getElementById('final-lie').innerText = lieProb + '%';
+        document.getElementById('final-lie').className = 'rc-big ' + lieClass;
+
+        // Recommendation
+        let recText = '';
+        if (lieProb >= 60) {
+            recText = '⚠️ CRITICAL ANOMALY: High probability of deception (' + lieProb + '%). Candidate exhibited intense stress triggers, abnormally low confidence, and deceptive micro-expressions. Verify all claims thoroughly.';
+        } else if (lieProb >= 30) {
+            recText = 'Moderate Signal: Candidate displayed some elevated stress and lower confidence. Ask probing follow-up questions to clarify context.';
+        } else if (avgC >= 75) {
+            recText = 'Strong Signal: Candidate demonstrated high confidence and natural composure with no deception markers. Highly recommended.';
+        } else {
+            recText = 'Standard Signal: Candidate showed expected, normal baseline composure. No anomalies found.';
+        }
+        document.getElementById('rec-text').innerText = recText;
+
+        // Style recommendation box
+        const recBox = document.getElementById('recommendation');
+        if (lieProb >= 60 || avgC < 50) { 
+            recBox.style.borderColor = 'rgba(244,63,94,0.3)'; recBox.style.background = 'rgba(244,63,94,0.06)'; document.querySelector('.rec-title').style.color = 'var(--danger)'; document.querySelector('.rec-icon').innerText = '⚠️ Deception Risk'; 
+        }
+        else if (lieProb >= 30 || avgC < 75) { 
+            recBox.style.borderColor = 'rgba(245,158,11,0.3)'; recBox.style.background = 'rgba(245,158,11,0.06)'; document.querySelector('.rec-title').style.color = 'var(--warning)'; document.querySelector('.rec-icon').innerText = '⚡ Careful Review'; 
+        }
+        else { 
+            recBox.style.borderColor = 'rgba(16,185,129,0.3)'; recBox.style.background = 'rgba(16,185,129,0.06)'; document.querySelector('.rec-title').style.color = 'var(--neon-green)'; document.querySelector('.rec-icon').innerText = '🎯 Cleared'; 
+        }
+
+        fetch("/save_report", {
+            method:"POST", headers:{"Content-Type":"application/json"},
+            body: JSON.stringify({ confidence: avgC, stress: stressLabel })
+        }).catch(()=>{});
+    } else {
+        // Handle case where NO data was analyzed or entire session had no face/voice
+        document.getElementById('final-conf').innerText = '--';
+        document.getElementById('final-stress').innerText = '--';
+        document.getElementById('final-stress').className = 'rc-big';
+        document.getElementById('final-lie').innerText = '--';
+        document.getElementById('final-lie').className = 'rc-big';
+
+        const stressCardEl = document.querySelector('.report-card.stress-card');
+        if (stressCardEl) stressCardEl.classList.remove('low', 'warn', 'danger');
+
+        document.getElementById('emotionBreakdown').innerHTML = '<div style="color:var(--text-mod);text-align:center;padding:20px;">No metrics recorded</div>';
+
+        document.getElementById('rec-text').innerText = 'No behavioral data recorded. The candidate\'s face and voice were not successfully detected during the session.';
+        
+        const recBox = document.getElementById('recommendation');
+        recBox.style.borderColor = 'rgba(255,255,255,0.1)'; 
+        recBox.style.background = 'rgba(255,255,255,0.03)'; 
+        document.querySelector('.rec-title').style.color = 'var(--text-dim)'; 
+        document.querySelector('.rec-icon').innerText = '❓ Invalid Session';
+    }
+
+    switchScreen('report-screen');
+}
+</script>
+</body>
+</html>

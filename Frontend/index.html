@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuralRead — Create Session</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <style>
+        :root {
+            --bg-primary: #06060f;
+            --text-primary: #f0f0ff;
+            --text-dim: #6b7280;
+            --neon-purple: #a855f7;
+            --neon-teal: #2dd4bf;
+            --neon-cyan: #22d3ee;
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bg-orbs {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.18;
+            animation: orbFloat 12s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: var(--neon-purple);
+            top: -150px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: var(--neon-teal);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -4s;
+        }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes orbFloat {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -20px) scale(1.05);
+            }
+
+            66% {
+                transform: translate(-20px, 30px) scale(0.95);
+            }
+        }
+
+        .start-inner {
+            position: relative;
+            z-index: 1;
+            max-width: 680px;
+            width: 100%;
+            text-align: center;
+            animation: riseIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes riseIn {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(168, 85, 247, 0.12);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 100px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--neon-purple);
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+
+        .start-title {
+            font-family: 'DM Sans', sans-serif;
+            font-style: italic;
+            text-transform: uppercase;
+            font-size: clamp(2.8rem, 7vw, 5rem);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #f0f0ff 0%, var(--neon-cyan) 50%, var(--neon-purple) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .start-desc {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            line-height: 1.7;
+            margin-bottom: 3rem;
+            max-width: 520px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .start-btn {
+            position: relative;
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 18px 52px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan));
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 0 40px rgba(168, 85, 247, 0.6);
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 3.5rem;
+            padding-top: 2.5rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-num {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--neon-teal), var(--neon-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+    <div class="bg-grid"></div>
+
+    <div class="start-inner">
+        <div class="badge">��� Remote AI Analysis</div>
+        <h1 class="start-title">Read Every<br>Candidate.</h1>
+        <p class="start-desc">Create a secure peer-to-peer WebRTC video room and analyze candidate behavioral signals
+            over the web.</p>
+
+        <a href="/create_room" class="start-btn">Create New Interview Room</a>
+
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="stat-num">P2P</div>
+                <div class="stat-label">WebRTC Connect</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">SSL</div>
+                <div class="stat-label">Encrypted Room</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
